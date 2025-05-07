@@ -14,6 +14,9 @@ const AgentCardComp = ({agent,loading})=>{
         navigate('/agent');
 
     }
+    const handleNavigateToMessages = ()=>{
+        navigate("/messages")
+    }
     return (
         <div style={{
         position:'fixed',
@@ -27,7 +30,7 @@ const AgentCardComp = ({agent,loading})=>{
             <div className="media-left">
                 <figure className="image is-48x48"
                     onClick={handleGoAgentPageClick}>
-                <img className="is-rounded" src={`${agent.iconUrl}`} alt={agent.name}/>
+                <img className="is-rounded" src={`http://localhost:8000${agent.iconUrl}`} alt={agent.name}/>
                 </figure>
             </div>
             <div className="media-content">
@@ -48,7 +51,9 @@ const AgentCardComp = ({agent,loading})=>{
                         <HiArrowSmLeft/>
                     </span>
                 </button>
-                <button className="button is-info is-small mt-2 is-rounded">
+                <button className="button is-info is-small mt-2 is-rounded"
+                    onClick={handleNavigateToMessages}
+                    >
                     <span className="icon">
                         <MdMessage/>
                     </span>

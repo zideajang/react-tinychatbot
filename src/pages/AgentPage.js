@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useAgentStore } from '../state/useAgentStore';
@@ -6,18 +6,29 @@ import { useAgentStore } from '../state/useAgentStore';
 // import { useAgentStore } from '../state/useAgentStore';
 
 import { RxAvatar } from "react-icons/rx";
+import { usePromptStore } from '../state/userPromptStore';
+import NavbarComp from '../components/NavbarComp';
 
 
 const AgentPage = () => {
   const { agent,updateAgent, setAgent } = useAgentStore(); // 假设有这些方法
+    const { prompts, loading, error, getPrompts,setPrompt } = usePromptStore();
+  
   const [action,setAction] = useState('create')
   const {agentId,setAgentId} = useState(agent?.id)
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, watch, formState: { errors } } = useForm();
+
   const [iconUrl, setIconUrl] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
 
+  const agentName = watch('name');
+
   const navigate = useNavigate();
+
+   useEffect(() => {
+      getPrompts(); // This will handle all the loading/error states internally
+}, []);
 
   const handleImageUpload = useCallback(async (event) => {
     const file = event.target.files[0];
@@ -29,10 +40,10 @@ const AgentPage = () => {
     setUploadError(null);
 
     const formData = new FormData();
-    formData.append('file', file, `${agentId}.${file.name.split('.').pop()}`); // 使用 agentId 作为文件名
-    formData.append('agentId', agentId);
+    formData.append('file', file, `${agentName}.${file.name.split('.').pop()}`); // 使用 agentId 作为文件名
+    formData.append('username', agentName);
     try {
-      const response = await fetch('http://localhost:8000/upload/agent/icon', { // 更改上传 Agent 图标的 API
+      const response = await fetch('http://localhost:8000/upload/avatar', { // 更改上传 Agent 图标的 API
         method: 'POST',
         body: formData,
       });
@@ -49,7 +60,7 @@ const AgentPage = () => {
     } finally {
       setUploading(false);
     }
-  }, [agentId]);
+  }, [agentName]);
 
   const onSubmit = useCallback(async (data) => {
     let uploadedIconUrl = iconUrl;
@@ -100,10 +111,12 @@ const AgentPage = () => {
   }, [action, agentId, handleImageUpload, iconUrl, navigate]);
 
   return (
-    <div className="container is-fluid ">
+    <>
+    <NavbarComp title={action === 'create' ? `创建 ${agentName} Agent` : '编辑 Agent'}/>
+    <div className="container is-fluid " style={{
+        marginTop:64
+    }}>
       <section className="section">
-      
-        <h1 className="title has-text-centered">{action === 'create' ? '创建 Agent' : '编辑 Agent'}</h1>
         {agentId && <p className=" has-text-centered is-size-7">Agent ID: {agentId}</p>}
       </section>
       <section className="section">
@@ -120,6 +133,7 @@ const AgentPage = () => {
                       </figure>
                     </div>
                   ) : (
+                    <div className='is-flex is-justify-content-center'>
                     <div className="file">
                       <label className="file-label">
                         <input
@@ -135,6 +149,7 @@ const AgentPage = () => {
                           <span className='is-size-7'>选择 Agent 图标</span>
                         </span>
                       </label>
+                    </div>
                     </div>
                   )}
                   {uploading && <progress className="progress is-small is-primary" max="100">上传中...</progress>}
@@ -155,18 +170,30 @@ const AgentPage = () => {
                 {errors.name && <p className="help is-danger">{errors.name.message}</p>}
               </div>
 
-              <div className="field">
-                <label className="label is-size-6">Prompt ID</label>
-                <div className="control">
-                  <input
-                    {...register('promptId', { required: 'Prompt ID 不能为空' })}
-                    className={`input ${errors.promptId ? 'is-danger' : ''} is-size-7`}
-                    type="text"
-                    placeholder="请输入 Prompt ID"
-                  />
-                </div>
-                {errors.promptId && <p className="help is-danger">{errors.promptId.message}</p>}
-              </div>
+              <div className="field mb-3">
+                    <label className="label is-pulled-left">Prompt</label>
+                    <button className='button is-pulled-right is-small is-success mb-3' onClick={(event)=>navigate("/prompt")}>添加</button>
+
+                    <div className="control has-icons-left ">
+                        <div className={`select is-fullwidth ${errors.promptId ? 'is-danger' : 'is-info'}`}>
+                        <select 
+                            {...register('promptId', { required: '请选择 Prompt' })}
+                            
+                        >
+                            <option value="">请选择 Prompt</option>
+                            {prompts && prompts.map((prompt) => (
+                            <option key={prompt.id} value={prompt.id}>
+                                {prompt.name || `Prompt ${prompt.id}`}
+                            </option>
+                            ))}
+                        </select>
+                        </div>
+                        
+                    </div>
+                    {errors.promptId && (
+                        <p className="help is-danger">{errors.promptId.message}</p>
+                    )}
+            </div>
 
               <div className="field">
                 <label className="label is-size-6">Agent 描述 (可选)</label>
@@ -197,6 +224,7 @@ const AgentPage = () => {
         </div>
       </section>
     </div>
+    </>
   );
 };
 
