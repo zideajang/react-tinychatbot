@@ -3,6 +3,9 @@ import NavbarComp from "../components/NavbarComp";
 import { useAgentStore } from "../state/useAgentStore";
 import { useUserStore } from "../state/useUserStore";
 import Markdown from "react-markdown";
+import config from "../config";
+
+
 
 const MessageListPage = () => {
     const { agent } = useAgentStore();
@@ -21,7 +24,7 @@ const MessageListPage = () => {
 
                 if (userId && agentId) {
                     const queryParams = new URLSearchParams({ userId, agentId });
-                    const response = await fetch(`http://localhost:8000/messages/?${queryParams.toString()}`);
+                    const response = await fetch(`${config.baseUrl}/messages/?${queryParams.toString()}`);
 
                     if (!response.ok) {
                         const errorData = await response.json();
@@ -56,8 +59,50 @@ const MessageListPage = () => {
         <>
             <NavbarComp title={"Messages"} />
             <div className="container is-fluid" style={{ marginTop: 64 }}>
-                {user?.id}
-                {agent?.id}
+                {agent && <article class="media">
+                    <figure class="media-left">
+                        <p class="image is-64x64">
+                        <img className="is-rounded" src={`${config.baseUrl}${agent.iconUrl}`}  alt={agent.name}/>
+                        </p>
+                    </figure>
+                    <div class="media-content">
+                        <div class="content">
+                        <p>
+                            <strong>{agent.name}</strong> <small>assistant</small> <small></small>
+                            <br />
+                            {agent.description}
+                        </p>
+                        </div>
+                        
+                    </div>
+                    <div class="media-right">
+                        <button class="delete"></button>
+                    </div>
+                </article>}
+
+                {user && <article class="media">
+                    <figure class="media-left">
+                        <p class="image is-64x64">
+                        <img className="is-rounded" src={`${config.baseUrl}${user.iconUrl}`}  alt={agent.name}/>
+                        </p>
+                    </figure>
+                    <div class="media-content">
+                        <div class="content">
+                        <p>
+                            <strong>{user.name}</strong> <small>user</small> <small></small>
+                            <br />
+                            {user.description}
+                        </p>
+                        </div>
+                        
+                    </div>
+                    <div class="media-right">
+                        <button class="delete"></button>
+                    </div>
+                </article>}
+                
+                <label className="label">历史消息</label>
+                
                 {messages.length > 0 ? (
                     <ul>
                         {messages.map(msg => (

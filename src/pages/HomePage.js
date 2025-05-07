@@ -8,29 +8,39 @@ import { RiRobot2Line } from "react-icons/ri";
 
 const HomePage = () => {
   const { user, loading, error, getUser } = useUserStore();
-  const { agents, loading : agentLoading, error : agentError, getAgents,setAgent } = useAgentStore();
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { agents, agent,
+      loading : agentLoading, error : agentError, getAgents,setAgent } = useAgentStore();
+  
+    const { register, handleSubmit, formState: { errors } } = useForm();
   const navigate = useNavigate(); // 获取 navigate 函数
-
-  const onSubmit = useCallback(async (data) => {
-    await getUser(data.username);
-
-    if (user && data.agent) { // 确保用户已登录且选择了 agent
-        navigate('/chat');
-        const selectedAgent = agents.find(agent => agent.id === data.agent);
-        setAgent(selectedAgent || null);
-    }else{
-      if(user === null){
-        navigate(`/userpage/create/${data.username}`);
-        const selectedAgent = agents.find(agent => agent.id === data.agent);
-        setAgent(selectedAgent || null);
-      }
-    }
-  }, [getUser,user,navigator,setAgent]);
-
+  
   useEffect(() => {
     getAgents();
-  }, [getAgents]);
+  }, []);
+  
+  const onSubmit = useCallback(async (data) => {
+    try {
+      const response = await getUser(data.username);
+      const selectedAgent = data.agent ? agents.find(agent => agent.id === data.agent) : null;
+  
+      // 设置选中的agent（无论response如何）
+      await setAgent(selectedAgent);
+  
+      if (response) {
+        // 用户已存在且登录成功
+        if(agent){
+          navigate('/chat');
+        }
+      } else if (response === null) {
+        // 用户不存在，跳转到创建页面
+        navigate(`/userpage/create/${data.username}`);
+      }
+      // 其他情况（如response为false或undefined）不做处理
+    } catch (error) {
+      console.error('提交过程中出错:', error);
+      // 可以在这里添加错误处理逻辑，如显示错误提示
+    }
+  }, [getUser,user,navigator,getAgents,agent]);
 
   return (
     <div className="container is-fluid">

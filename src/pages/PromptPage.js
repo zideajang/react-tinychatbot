@@ -3,6 +3,9 @@ import { useForm } from 'react-hook-form';
 import { v4 as uuidv4 } from 'uuid'; // For generating UUIDs
 import { format } from 'date-fns'; // For formatting the date (optional)
 import NavbarComp from '../components/NavbarComp';
+import config from '../config';
+
+
 
 const PromptPage = () => {
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
@@ -22,7 +25,7 @@ const PromptPage = () => {
       };
   
       try {
-        const response = await fetch('http://localhost:8000/prompts/', { // 确保 API 路径与您的 FastAPI 路由匹配
+        const response = await fetch(`${config.baseUrl}/prompts/`, { // 确保 API 路径与您的 FastAPI 路由匹配
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

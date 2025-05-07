@@ -4,8 +4,9 @@ import AgentCardComp from "../components/AgentCardComp";
 import { useAgentStore } from "../state/useAgentStore";
 import { useUserStore } from "../state/useUserStore";
 import { getCurrentTimeHHMM } from "../common/helper";
+import { useNavigate } from 'react-router-dom';
 import { Link, Button, Element, Events, animateScroll as scroll, scrollSpy } from 'react-scroll';
-
+import config from "../config";
 
 const ChatPage = ()=>{
 
@@ -17,17 +18,26 @@ const ChatPage = ()=>{
     const websocket = useRef(null);
     const [isConnected, setIsConnected] = useState(false);
     const [loading,setLoading] = useState(false);
+    const navigate = useNavigate();
 
 
-    console.log(agent.iconUrl)
-    console.log(JSON.stringify(agent))
+    if(agent === undefined){
+      // return(
+      //   <div className="button" onClick={(event)=>navigate(-1)}>
+
+      //   </div>
+      // )
+      
+    }
 
 
     const connectWebSocket = useCallback(() => {
         if (websocket.current) {
           disconnectWebSocket(); // 确保先断开之前的连接
         }
-        websocket.current = new WebSocket('ws://localhost:8000/ws');
+        const websocketUrl = config.baseUrl.replace('http://', '');
+
+        websocket.current = new WebSocket(`ws://${websocketUrl}/ws`);
     
         websocket.current.onopen = () => {
           console.log('WebSocket connected');
@@ -131,8 +141,9 @@ const ChatPage = ()=>{
                 overflow:'auto'
             
             }}>
-                <div className="element" id="containerElement">
-
+                <div className="element" id="containerElement" style={{
+                  marginTop:`${loading?"20px":""}`
+                }}>
                 {
                     messages && messages.map((message,idx)=>(
                         <Element name={`message-${idx}`} >
@@ -142,18 +153,28 @@ const ChatPage = ()=>{
                 }
                 </div>
                 </div>
-            <form onSubmit={sendMessage} className="p-3" style={{
+            <form onSubmit={sendMessage}
+              name="userinput"
+              className="p-3" style={{
                 position:'fixed',
                 bottom:36,
                 left:0,
                 right:0
             }}>
-                <input
-                    type="text"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="输入信息"
-                    className="input is-rounded" />
+               <div class="field is-grouped">
+                <p class="control is-expanded">
+                    <input class="input" 
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      type="text" 
+                      placeholder="请输入信息"/>
+                </p>
+                <p class="control">
+                    <button class="button is-link" onClick={(event)=>sendMessage(event)} >
+                    发送
+                    </button>
+                </p>
+              </div>
             </form>
         </div>
     )

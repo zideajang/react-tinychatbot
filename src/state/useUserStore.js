@@ -1,6 +1,9 @@
 import { create } from 'zustand';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
+import config from '../config';
+
+
 
 export const useUserStore = create((set, get) => ({
   user: null,
@@ -9,14 +12,14 @@ export const useUserStore = create((set, get) => ({
   getUser: async (username) => {
     set({ loading: true, error: null });
     try {
-      const response = await axios.get(`http://localhost:8000/users/by_username/${username}`);
-      console.log(response)
+      const response = await axios.get(`${config.baseUrl}/users/by_username/${username}`);
       set({ user: response.data.data, loading: false });
+      return response.data.data
     } catch (error) {
-      console.log(error)
       if(error.response.status === 404){
         set({ user: null, loading: false });
       }
+      return null
     }
   },
   updateUser: async (userData) => {
@@ -27,7 +30,7 @@ export const useUserStore = create((set, get) => ({
         iconUrl: '/static/user.png', // 提供默认 iconUrl
         ...userData,
       };
-      const response = await axios.post('http://localhost:8000/user', newUser);
+      const response = await axios.post(`${config.baseUrl}/user`, newUser);
       set({ user: response.data.data, loading: false });
     } catch (error) {
       set({ error, loading: false });

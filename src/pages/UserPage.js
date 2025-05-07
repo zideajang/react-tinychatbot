@@ -2,6 +2,8 @@ import React,{useState,useCallback} from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useUserStore } from '../state/useUserStore';
+import config from '../config';
+import { RxAvatar } from "react-icons/rx";
 
 const UserPage = () => {
   const { action, username } = useParams();
@@ -12,6 +14,7 @@ const UserPage = () => {
   const [uploadError, setUploadError] = useState(null);
 
   const navigate = useNavigate();
+  
   const handleImageUpload = useCallback(async (event) => {
     
     const file = event.target.files[0];
@@ -44,7 +47,7 @@ const UserPage = () => {
       setUploading(false);
     }
   }, [username]);
-
+  
   const onSubmit = useCallback(async (data) => {
     let uploadedIconUrl = iconUrl;
     if (!uploadedIconUrl && data.avatar) { // 如果没有上传过，且有选择文件
@@ -64,7 +67,7 @@ const UserPage = () => {
     };
 
     try {
-      const response = await fetch('http://localhost:8000/users', { // 使用您的用户创建接口
+      const response = await fetch(`${config.baseUrl}/users`, { // 使用您的用户创建接口
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -108,11 +111,11 @@ const UserPage = () => {
                   {iconUrl?  (
                     <div className='is-flex is-justify-content-center'>
                     <figure className="image is-128x128 mb-3" onClick={event=>setIconUrl(null)}>
-                      <img className="is-rounded" src={`http://localhost:8000${iconUrl}`} alt="User Avatar" />
+                      <img className="is-rounded" src={`${config.baseUrl}${iconUrl}`} alt="User Avatar" />
                     </figure>
                     </div>
                   ):(
-
+                    <div className='is-flex is-justify-content-center'>
                   <div className="file">
                     <label className="file-label">
                       <input
@@ -123,11 +126,12 @@ const UserPage = () => {
                       />
                       <span className="file-cta">
                         <span className="file-icon">
-                          <i className="fas fa-upload"></i>
+                          <RxAvatar/>
                         </span>
                         <span className='is-size-7'>选择头像</span>
                       </span>
                     </label>
+                  </div>
                   </div>
                   )}
                   {uploading && <progress className="progress is-small is-primary" max="100">上传中...</progress>}
@@ -159,17 +163,26 @@ const UserPage = () => {
 
               <div className="field">
                 <label className="label">性别</label>
-                <div className="control">
-                  <div className="select is-fullwidth">
-                    <select {...register('gender', { required: '请选择性别' })}>
-                      <option value="">请选择</option>
-                      <option value="male">男</option>
-                      <option value="female">女</option>
-                    </select>
-                  </div>
+                <div className="control is-flex">
+                    <label className="radio ">
+                    <input
+                        type="radio"
+                        value="male"
+                        {...register('gender', { required: '请选择性别' })}
+                    />
+                    男
+                    </label>
+                    <label className="radio">
+                    <input
+                        type="radio"
+                        value="female"
+                        {...register('gender', { required: '请选择性别' })}
+                    />
+                    女
+                    </label>
                 </div>
                 {errors.gender && <p className="help is-danger">{errors.gender.message}</p>}
-              </div>
+                </div>
 
               <div className="field">
                 <label className="label">年龄 (可选)</label>

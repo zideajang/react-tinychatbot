@@ -2,6 +2,9 @@
 
 import { create } from 'zustand';
 import axios from 'axios';
+import config from '../config';
+
+
 
 export const usePromptStore = create((set, get) => ({
     prompt: null,         // Single prompt
@@ -16,7 +19,7 @@ export const usePromptStore = create((set, get) => ({
     getPrompts: async () => {
         set({ loading: true, error: null });
         try {
-            const response = await axios.get('http://localhost:8000/prompts/');
+            const response = await axios.get(`${config.baseUrl}/prompts/`);
             set({ prompts: response.data, loading: false });
         } catch (error) {
             set({ error: error.message || 'Failed to fetch prompts', loading: false });
@@ -27,7 +30,7 @@ export const usePromptStore = create((set, get) => ({
     createPrompt: async (promptData) => {
         set({ loading: true, error: null });
         try {
-            const response = await axios.post('http://localhost:8000/prompts/', promptData);
+            const response = await axios.post(`${config.baseUrl}/prompts/`, promptData);
             set(state => ({ 
                 prompts: [...state.prompts, response.data], 
                 loading: false 
@@ -44,7 +47,7 @@ export const usePromptStore = create((set, get) => ({
         set({ loading: true, error: null });
         try {
             const response = await axios.put(
-                `http://localhost:8000/prompts/${promptId}`, 
+                `${config.baseUrl}/prompts/${promptId}`, 
                 promptData
             );
             
@@ -69,7 +72,7 @@ export const usePromptStore = create((set, get) => ({
     deletePrompt: async (promptId) => {
         set({ loading: true, error: null });
         try {
-            await axios.delete(`http://localhost:8000/prompts/${promptId}`);
+            await axios.delete(`${config.baseUrl}/prompts/${promptId}`);
             set(state => ({
                 prompts: state.prompts.filter(prompt => prompt.id !== promptId),
                 loading: false
@@ -85,7 +88,7 @@ export const usePromptStore = create((set, get) => ({
     getPromptById: async (promptId) => {
         set({ loading: true, error: null });
         try {
-            const response = await axios.get(`http://localhost:8000/prompts/${promptId}`);
+            const response = await axios.get(`${config.baseUrl}/prompts/${promptId}`);
             set({ prompt: response.data, loading: false });
             return response.data;
         } catch (error) {

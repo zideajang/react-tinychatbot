@@ -2,6 +2,8 @@ import { MdMessage } from "react-icons/md";
 import { HiArrowSmLeft } from "react-icons/hi";
 
 import { useNavigate } from 'react-router-dom';
+import config from "../config";
+
 
 const AgentCardComp = ({agent,loading})=>{
 
@@ -28,9 +30,9 @@ const AgentCardComp = ({agent,loading})=>{
 
         <div className="media p-3 has-background-link-05 has-text-link-05-invert">
             <div className="media-left">
-                <figure className="image is-48x48"
+                <figure className="image is-48x48 is-1by1"
                     onClick={handleGoAgentPageClick}>
-                <img className="is-rounded" src={`http://localhost:8000${agent.iconUrl}`} alt={agent.name}/>
+                <img className="is-rounded" src={`${config.baseUrl}${agent.iconUrl}`} alt={agent.name}/>
                 </figure>
             </div>
             <div className="media-content">
@@ -44,14 +46,14 @@ const AgentCardComp = ({agent,loading})=>{
             </div>
             <div className="media-right">
                 <div className="buttons">
-                <button className="button is-info is-small mt-2 is-rounded"
+                <button className="button has-background-link-15 has-text-link-15-invert is-small mt-2 is-rounded"
                     onClick={handleBackButtonClick}
                     >
                     <span className="icon">
                         <HiArrowSmLeft/>
                     </span>
                 </button>
-                <button className="button is-info is-small mt-2 is-rounded"
+                <button className="button has-background-link-15 has-text-link-15-invert is-small mt-2 is-rounded"
                     onClick={handleNavigateToMessages}
                     >
                     <span className="icon">

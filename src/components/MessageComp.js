@@ -1,7 +1,9 @@
 import Markdown from 'react-markdown'
+import config from '../config'
 const MessageComp = ({message,user,agent})=>{
 
-    const userIconUrl = `http://localhost:8000${user.iconUrl}`
+    const userIconUrl = `${config.baseUrl}${user.iconUrl}`
+    const agentIconUrl = `${config.baseUrl}${agent.iconUrl}`
     
     return (
 
@@ -22,11 +24,13 @@ const MessageComp = ({message,user,agent})=>{
                 </p>
             </div>
 
+           
+
             <div className="section pt-0">
-                <p className={`image is-32x32 ${message.role==="user"?"is-pulled-right":""}`}>
+                <p className={`image is-32x32 is-1by1 ${message.role==="user"?"is-pulled-right":""}`}>
                     <img 
                     className="is-rounded"
-                    src={`${message.role==="assistant"?agent.iconUrl:userIconUrl}`} alt="assistant" />
+                    src={`${message.role==="assistant"?agentIconUrl:userIconUrl}`} alt="assistant" />
                 </p>
             </div>
         </div>

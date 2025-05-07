@@ -1,5 +1,8 @@
 import { create } from 'zustand';
 import axios from 'axios';
+import config from '../config';
+
+
 export const useAgentStore = create((set, get) => ({
     agent: null,
     agents: [],
@@ -9,7 +12,7 @@ export const useAgentStore = create((set, get) => ({
     getAgents: async () => {
       set({ loading: true, error: null });
       try {
-        const response = await axios.get('http://localhost:8000/agents/');
+        const response = await axios.get(`${config.baseUrl}/agents/`);
         console.log(response.data)
         set({ agents: response.data, loading: false });
       } catch (error) {
@@ -19,7 +22,7 @@ export const useAgentStore = create((set, get) => ({
     createAgent: async (agentData) => {
       set({ loading: true, error: null });
       try {
-        const response = await axios.post('http://localhost:8000/agents/', agentData);
+        const response = await axios.post(`${config.baseUrl}/agents/`, agentData);
         set(state => ({ agents: [...state.agents, response.data], loading: false }));
         return response.data;
       } catch (error) {
@@ -30,7 +33,7 @@ export const useAgentStore = create((set, get) => ({
     updateAgent: async (agentId, agentData) => {
       set({ loading: true, error: null });
       try {
-        const response = await axios.put(`http://localhost:8000/agents/${agentId}`, agentData);
+        const response = await axios.put(`${config.baseUrl}/agents/${agentId}`, agentData);
         if (response.data) {
           set(state => ({
             agents: state.agents.map(agent =>

@@ -8,6 +8,9 @@ import { useAgentStore } from '../state/useAgentStore';
 import { RxAvatar } from "react-icons/rx";
 import { usePromptStore } from '../state/userPromptStore';
 import NavbarComp from '../components/NavbarComp';
+import config from '../config';
+
+
 
 
 const AgentPage = () => {
@@ -43,7 +46,7 @@ const AgentPage = () => {
     formData.append('file', file, `${agentName}.${file.name.split('.').pop()}`); // 使用 agentId 作为文件名
     formData.append('username', agentName);
     try {
-      const response = await fetch('http://localhost:8000/upload/avatar', { // 更改上传 Agent 图标的 API
+      const response = await fetch(`${config.baseUrl}/upload/avatar`, { // 更改上传 Agent 图标的 API
         method: 'POST',
         body: formData,
       });
@@ -81,7 +84,7 @@ const AgentPage = () => {
     };
 
     // const apiUrl = action === 'create' ? 'http://localhost:8000/agents' : `http://localhost:8000/agents/${agentId}`;
-    const apiUrl = 'http://localhost:8000/agents'
+    const apiUrl = `${config.baseUrl}/agents`
     const method = action === 'create' ? 'POST' : 'PUT'; 
     try {
       const response = await fetch(apiUrl, {
@@ -129,7 +132,7 @@ const AgentPage = () => {
                   {iconUrl ? (
                     <div className='is-flex is-justify-content-center'>
                       <figure className="image is-128x128 mb-3" onClick={() => setIconUrl(null)}>
-                        <img className="is-rounded" src={`http://localhost:8000${iconUrl}`} alt="Agent Icon" />
+                        <img className="is-rounded" src={`${config.baseUrl}${iconUrl}`} alt="Agent Icon" />
                       </figure>
                     </div>
                   ) : (
