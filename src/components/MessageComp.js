@@ -1,23 +1,32 @@
-
+import Markdown from 'react-markdown'
 const MessageComp = ({message,user,agent})=>{
+
+    const userIconUrl = `http://localhost:8000${user.iconUrl}`
+    
     return (
 
         <div class="columns">
-          
             <div class="box">
                 <p>
-                    <strong>message</strong> <small>{message.role}</small> <small>31m</small>
+                    <strong>{`${message.role==="user"?user.name:agent.name}`}</strong> <small className="tag">角色:{message.role}</small> <small className="tag is-link">时间:{message.time}</small>
                     <br />
-                    {message.content}
+                    {message.role==="user"?(
+                        <p className="is-size-7">
+                        {message.content}
+                        </p>
+                    ):(
+                        <p className="is-size-7">
+                        <Markdown>{message.content}</Markdown>
+                        </p>
+                    )}
                 </p>
             </div>
 
             <div className="section pt-0">
-
                 <p className={`image is-32x32 ${message.role==="user"?"is-pulled-right":""}`}>
                     <img 
                     className="is-rounded"
-                    src={`${message.role==="assistant"?agent.iconUrl:user.iconUrl}`} alt="assistant" />
+                    src={`${message.role==="assistant"?agent.iconUrl:userIconUrl}`} alt="assistant" />
                 </p>
             </div>
         </div>

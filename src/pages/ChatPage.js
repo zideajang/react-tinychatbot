@@ -1,18 +1,23 @@
 import { useState,useRef,useEffect,useCallback } from "react"
 import MessageComp from "../components/MessageComp";
-import UserCardComp from "../components/UserCardComp";
+import AgentCardComp from "../components/AgentCardComp";
 import { useAgentStore } from "../state/useAgentStore";
 import { useUserStore } from "../state/useUserStore";
+import { getCurrentTimeHHMM } from "../common/helper";
+import { Link, Button, Element, Events, animateScroll as scroll, scrollSpy } from 'react-scroll';
+
+
 const ChatPage = ()=>{
 
-      const { agent } = useAgentStore();
-      const {user} = useUserStore();
+    const { agent } = useAgentStore();
+    const {user} = useUserStore();
     
     const [messages,setMessages] = useState([]);
     const [message,setMessage] = useState()
     const websocket = useRef(null);
     const [isConnected, setIsConnected] = useState(false);
     const [loading,setLoading] = useState(false);
+
 
     console.log(agent.iconUrl)
     console.log(JSON.stringify(agent))
@@ -37,8 +42,9 @@ const ChatPage = ()=>{
         websocket.current.onmessage = (event) => {
           try {
             const parsedMessage = JSON.parse(event.data);
-            setMessages((prevMessages) => [...prevMessages, parsedMessage]);
             setLoading(false); // 收到消息后停止加载
+            setMessages((prevMessages) => [...prevMessages, {...parsedMessage,time:getCurrentTimeHHMM()}]);
+            scrollToBottom()
           } catch (error) {
             console.error('Error parsing WebSocket message:', error);
             // 错误处理：可以显示错误消息，或者尝试重新连接
@@ -49,6 +55,7 @@ const ChatPage = ()=>{
           console.error('WebSocket error:', error);
           setIsConnected(false);
           setLoading(false);
+
         };
       }, [setMessages,setIsConnected]);
     
@@ -73,7 +80,8 @@ const ChatPage = ()=>{
             setLoading(true);
             setMessages((preMessages)=>([...preMessages,{
                 "role":"user",
-                "content":message
+                "content":message,
+                "time":getCurrentTimeHHMM()
             }]))
             websocket.current.send(JSON.stringify({
                 role:"user",
@@ -85,19 +93,55 @@ const ChatPage = ()=>{
             setMessage('');
         }
     };
+    const scrollToBottom = () => {
+        scroll.scrollToBottom();
+    };
+
+    useEffect(() => {
+    
+        // Registering the 'begin' event and logging it to the console when triggered.
+        Events.scrollEvent.register('begin', (to, element) => {
+          console.log('begin', to, element);
+        });
+    
+        // Registering the 'end' event and logging it to the console when triggered.
+        Events.scrollEvent.register('end', (to, element) => {
+          console.log('end', to, element);
+        });
+    
+        // Updating scrollSpy when the component mounts.
+        scrollSpy.update();
+    
+        // Returning a cleanup function to remove the registered events when the component unmounts.
+        return () => {
+          Events.scrollEvent.remove('begin');
+          Events.scrollEvent.remove('end');
+        };
+      }, []);
+  
 
     return(
         <div className="container">
-            <UserCardComp agent={agent}/>
-            {loading && <progress class="progress is-small is-primary" max="100">15%</progress>
-            }
-            <div className="section">
+            <AgentCardComp agent={agent} loading={loading}/>
+            
+            <div className="container pl-6 pr-6" style={{
+                paddingTop:'96px',
+                height:'100vh',
+                paddingBottom:'80px',
+                overflow:'auto'
+            
+            }}>
+                <div className="element" id="containerElement">
+
                 {
                     messages && messages.map((message,idx)=>(
-                        <MessageComp key={message.id} message={message} agent={agent} user={user}/>
+                        <Element name={`message-${idx}`} >
+                            <MessageComp key={message.id} message={message} agent={agent} user={user}/>
+                        </Element>
                     ))
                 }
-            </div>
+                </div>
+                </div>
             <form onSubmit={sendMessage} className="p-3" style={{
                 position:'fixed',
                 bottom:36,

@@ -10,9 +10,13 @@ export const useUserStore = create((set, get) => ({
     set({ loading: true, error: null });
     try {
       const response = await axios.get(`http://localhost:8000/users/by_username/${username}`);
+      console.log(response)
       set({ user: response.data.data, loading: false });
     } catch (error) {
-      set({ error, loading: false });
+      console.log(error)
+      if(error.response.status === 404){
+        set({ user: null, loading: false });
+      }
     }
   },
   updateUser: async (userData) => {
@@ -28,5 +32,8 @@ export const useUserStore = create((set, get) => ({
     } catch (error) {
       set({ error, loading: false });
     }
+  },
+  setUser: (userData) => { // 新的 action 用于设置用户信息
+    set({ user: userData });
   },
 }));

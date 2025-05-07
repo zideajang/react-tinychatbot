@@ -3,6 +3,8 @@ import { useUserStore } from '../state/useUserStore';
 import { useForm } from 'react-hook-form';
 import { useAgentStore } from '../state/useAgentStore';
 import { useNavigate } from 'react-router-dom'; // 引入 useNavigate
+import { FaUserCircle } from "react-icons/fa";
+import { RiRobot2Line } from "react-icons/ri";
 
 const HomePage = () => {
   const { user, loading, error, getUser } = useUserStore();
@@ -17,6 +19,12 @@ const HomePage = () => {
         navigate('/chat');
         const selectedAgent = agents.find(agent => agent.id === data.agent);
         setAgent(selectedAgent || null);
+    }else{
+      if(user === null){
+        navigate(`/userpage/create/${data.username}`);
+        const selectedAgent = agents.find(agent => agent.id === data.agent);
+        setAgent(selectedAgent || null);
+      }
     }
   }, [getUser,user,navigator,setAgent]);
 
@@ -36,7 +44,7 @@ const HomePage = () => {
               <figure className="image is-128x128 is-inline-block">
                 <img
                   className="is-rounded"
-                  src={`${user?.iconUrl?user.iconUrl:"https://bulma.io/assets/images/placeholders/128x128.png"}`}
+                  src={`${user?.iconUrl?`htttp://localhost:8000${user?.iconUrl}`:"https://bulma.io/assets/images/placeholders/128x128.png"}`}
                   alt="User Avatar"
                 />
               </figure>
@@ -44,22 +52,26 @@ const HomePage = () => {
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="field">
                 <label className="label">用户名</label>
-                <div className="control">
+                <div className="control has-icons-left">
+                
                   <input
                     {...register('username', { required: '用户名是必需的' })}
-                    className={`input ${errors.username ? 'is-danger' : ''}`}
+                    className={`input ${errors.username ? 'is-danger' : ''} is-rounded is-link`}
                     type="text"
                     placeholder="请输入用户名"
                   />
+                  <span class="icon is-small is-left">
+                    <FaUserCircle/>
+                </span>
                   {errors.username && (
                     <p className="help is-danger">{errors.username.message}</p>
                   )}
                 </div>
               </div>
-              <div className="field">
+              <div className="field mb-3">
                 <label className="label">Agent</label>
-                <div className="control">
-                  <div className="select is-fullwidth">
+                <div className="control has-icons-left">
+                  <div className="select is-fullwidth is-rounded is-info">
                     <select {...register('agent')}>
                         {agents && agents.map((agent,idx)=>(
                             <option  key={agent.id} 
@@ -69,13 +81,16 @@ const HomePage = () => {
                       
                     </select>
                   </div>
+                    <div class="icon is-small is-left">
+                        <RiRobot2Line/>
+                    </div>
                 </div>
               </div>
                   {loading && <progress class="progress is-small is-primary" max="100">15%</progress>
                   }
-              <div className="field">
+              <div className="field mt-6">
                 <div className="control">
-                  <button type="submit" className="button is-primary is-fullwidth">
+                  <button type="submit" className="button is-info is-fullwidth is-rounded">
                     登录
                   </button>
                 </div>
